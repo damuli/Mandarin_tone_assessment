@@ -1,9 +1,9 @@
-```html id="tonequest_audio"
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>Tone Quest</title>
+<title>Tone Quest FIXED</title>
 
 <style>
 body {
@@ -17,12 +17,6 @@ body {
     display: flex;
     justify-content: space-around;
     font-size: 20px;
-    margin: 15px;
-}
-
-#monster {
-    font-size: 80px;
-    margin: 20px;
 }
 
 button {
@@ -30,27 +24,12 @@ button {
     padding: 15px;
     margin: 10px;
     border-radius: 10px;
-    border: none;
     cursor: pointer;
-}
-
-button:hover {
-    background: gold;
-    color: black;
 }
 
 #feedback {
     font-size: 24px;
     margin: 10px;
-}
-
-#nextBtn {
-    display: none;
-}
-
-#result {
-    display: none;
-    font-size: 28px;
 }
 </style>
 </head>
@@ -60,11 +39,11 @@ button:hover {
 <h1>🎮 Tone Quest</h1>
 
 <div class="status">
-    ❤️ HP: <span id="hp">3</span>
-    🎯 Score: <span id="score">0</span>
+❤️ HP: <span id="hp">3</span>
+🎯 Score: <span id="score">0</span>
 </div>
 
-<div id="monster">👾</div>
+<div style="font-size:70px;">👾</div>
 
 <button onclick="playAudio()">🔊 播放聲音</button>
 
@@ -72,28 +51,27 @@ button:hover {
 
 <div id="feedback"></div>
 
-<button id="nextBtn" onclick="nextQuestion()">下一題 ➡️</button>
+<button id="nextBtn" onclick="nextQuestion()" style="display:none;">下一題</button>
 
 <div id="result"></div>
 
-<!-- 音檔 -->
-<audio id="audio_ma1" src="https://cdn.jsdelivr.net/gh/terkelg/awesome-creative-coding-assets/audio/ma1.mp3"></audio>
-<audio id="audio_ma2" src="https://cdn.jsdelivr.net/gh/terkelg/awesome-creative-coding-assets/audio/ma2.mp3"></audio>
-<audio id="audio_ma3" src="https://cdn.jsdelivr.net/gh/terkelg/awesome-creative-coding-assets/audio/ma3.mp3"></audio>
-<audio id="audio_ma4" src="https://cdn.jsdelivr.net/gh/terkelg/awesome-creative-coding-assets/audio/ma4.mp3"></audio>
-
 <script>
+/* ✅ 使用真正可用的音源（Google Translate TTS） */
+function getAudioURL(text){
+    return `https://translate.google.com/translate_tts?ie=UTF-8&q=${text}&tl=zh-TW&client=tw-ob`;
+}
+
 const questions = [
-    {audio:"audio_ma1", answer:"媽 mā"},
-    {audio:"audio_ma2", answer:"麻 má"},
-    {audio:"audio_ma3", answer:"馬 mǎ"},
-    {audio:"audio_ma4", answer:"罵 mà"},
-    {audio:"audio_ma1", answer:"媽 mā"},
-    {audio:"audio_ma2", answer:"麻 má"},
-    {audio:"audio_ma3", answer:"馬 mǎ"},
-    {audio:"audio_ma4", answer:"罵 mà"},
-    {audio:"audio_ma3", answer:"馬 mǎ"},
-    {audio:"audio_ma2", answer:"麻 má"}
+    {sound:"媽", answer:"媽 mā"},
+    {sound:"麻", answer:"麻 má"},
+    {sound:"馬", answer:"馬 mǎ"},
+    {sound:"罵", answer:"罵 mà"},
+    {sound:"媽", answer:"媽 mā"},
+    {sound:"麻", answer:"麻 má"},
+    {sound:"馬", answer:"馬 mǎ"},
+    {sound:"罵", answer:"罵 mà"},
+    {sound:"馬", answer:"馬 mǎ"},
+    {sound:"麻", answer:"麻 má"}
 ];
 
 const options = ["媽 mā","麻 má","馬 mǎ","罵 mà"];
@@ -106,21 +84,25 @@ function loadQuestion(){
     document.getElementById("feedback").innerText = "";
     document.getElementById("nextBtn").style.display = "none";
 
-    let choicesDiv = document.getElementById("choices");
-    choicesDiv.innerHTML = "";
+    let div = document.getElementById("choices");
+    div.innerHTML = "";
 
     options.forEach(opt=>{
         let btn = document.createElement("button");
         btn.innerText = opt;
         btn.onclick = ()=>checkAnswer(opt);
-        choicesDiv.appendChild(btn);
+        div.appendChild(btn);
     });
 }
 
 function playAudio(){
-    let audio = document.getElementById(questions[current].audio);
-    audio.currentTime = 0;
-    audio.play();
+    let text = questions[current].sound;
+    let audio = new Audio(getAudioURL(text));
+
+    audio.play().catch(err=>{
+        alert("⚠️ 無法播放音檔（可能被瀏覽器阻擋）");
+        console.log(err);
+    });
 }
 
 function checkAnswer(choice){
@@ -128,10 +110,10 @@ function checkAnswer(choice){
 
     if(choice === correct){
         score += 10;
-        document.getElementById("feedback").innerText = "💥 正確！攻擊成功！";
+        document.getElementById("feedback").innerText = "💥 正確！";
     } else {
         hp -= 1;
-        document.getElementById("feedback").innerText = "⚡ 錯誤！被怪物打中！";
+        document.getElementById("feedback").innerText = "⚡ 錯誤！";
     }
 
     document.getElementById("score").innerText = score;
@@ -139,9 +121,7 @@ function checkAnswer(choice){
 
     document.getElementById("nextBtn").style.display = "inline-block";
 
-    if(hp <= 0){
-        endGame();
-    }
+    if(hp <= 0) endGame();
 }
 
 function nextQuestion(){
@@ -157,16 +137,13 @@ function endGame(){
     document.getElementById("choices").innerHTML = "";
     document.getElementById("nextBtn").style.display = "none";
 
-    let resultText = "";
+    let result = score >= 90 ? "🎯 Tone Master" :
+                 score >= 70 ? "👍 Tone Explorer" :
+                 score >= 50 ? "🙂 Getting There" :
+                               "🧩 Keep Practicing";
 
-    if(score >= 90) resultText = "🎯 Tone Master";
-    else if(score >= 70) resultText = "👍 Tone Explorer";
-    else if(score >= 50) resultText = "🙂 Getting There";
-    else resultText = "🧩 Keep Practicing";
-
-    document.getElementById("result").style.display = "block";
     document.getElementById("result").innerText =
-        `遊戲結束！分數：${score}\n${resultText}`;
+        `分數：${score}\n${result}`;
 }
 
 loadQuestion();
