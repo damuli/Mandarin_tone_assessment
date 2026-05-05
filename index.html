@@ -70,7 +70,11 @@ button:hover {
 
 <div id="monster">👾</div>
 
+<!-- 🔊 播放按鈕 -->
 <button onclick="playAudio()">🔊 播放聲音</button>
+
+<!-- 🔊 真正播放器（關鍵） -->
+<audio id="player"></audio>
 
 <div id="choices"></div>
 
@@ -122,11 +126,13 @@ function playAudio(){
     let file = questions[current].audio;
     let url = baseURL + file;
 
-    console.log("播放：", url);
+    let player = document.getElementById("player");
 
-    let audio = new Audio(url);
-    audio.play().catch(err=>{
-        alert("❌ 播放失敗，請確認音檔網址是否正確");
+    player.src = url;
+    player.currentTime = 0;
+
+    player.play().catch(err=>{
+        alert("❌ 無法播放音檔（請點擊畫面後再試）");
         console.log(err);
     });
 }
@@ -139,7 +145,7 @@ function checkAnswer(choice){
         document.getElementById("feedback").innerText = "💥 正確！攻擊成功！";
     } else {
         hp -= 1;
-        document.getElementById("feedback").innerText = "⚡ 錯誤！被攻擊！";
+        document.getElementById("feedback").innerText = "⚡ 錯誤！被怪物攻擊！";
     }
 
     document.getElementById("score").innerText = score;
