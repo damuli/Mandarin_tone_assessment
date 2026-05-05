@@ -1,9 +1,9 @@
-```html
+```html id="tonequest_simple"
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>🎮 Tone Quest</title>
+<title>🎮 Tone Quest（四聲版）</title>
 
 <style>
 body {
@@ -18,15 +18,8 @@ h1 {
 }
 
 .status {
-    display: flex;
-    justify-content: space-around;
     font-size: 20px;
     margin: 10px;
-}
-
-#monster {
-    font-size: 80px;
-    margin: 20px;
 }
 
 button {
@@ -61,19 +54,15 @@ button:hover {
 
 <body>
 
-<h1>🎮 Tone Quest</h1>
+<h1>🎮 四聲聽辨挑戰</h1>
 
 <div class="status">
-    ❤️ HP: <span id="hp">3</span>
-    🎯 Score: <span id="score">0</span>
+    🎯 Score: <span id="score">0</span> / 100
 </div>
 
-<div id="monster">👾</div>
-
-<!-- 🔊 播放按鈕 -->
+<!-- 播放 -->
 <button onclick="playAudio()">🔊 播放聲音</button>
 
-<!-- 🔊 真正播放器（關鍵） -->
 <audio id="player"></audio>
 
 <div id="choices"></div>
@@ -85,27 +74,20 @@ button:hover {
 <div id="result"></div>
 
 <script>
-/* 🔊 你的 GitHub Pages 音檔位置 */
 const baseURL = "https://damuli.github.io/Mandarin_tone_assessment/";
 
+/* 🎯 四題固定（剛好四聲） */
 const questions = [
     {audio:"ma1.m4a", answer:"媽 mā"},
     {audio:"ma2.m4a", answer:"麻 má"},
     {audio:"ma3.m4a", answer:"馬 mǎ"},
-    {audio:"ma4.m4a", answer:"罵 mà"},
-    {audio:"ma1.m4a", answer:"媽 mā"},
-    {audio:"ma2.m4a", answer:"麻 má"},
-    {audio:"ma3.m4a", answer:"馬 mǎ"},
-    {audio:"ma4.m4a", answer:"罵 mà"},
-    {audio:"ma3.m4a", answer:"馬 mǎ"},
-    {audio:"ma2.m4a", answer:"麻 má"}
+    {audio:"ma4.m4a", answer:"罵 mà"}
 ];
 
 const options = ["媽 mā","麻 má","馬 mǎ","罵 mà"];
 
 let current = 0;
 let score = 0;
-let hp = 3;
 
 function loadQuestion(){
     document.getElementById("feedback").innerText = "";
@@ -127,13 +109,11 @@ function playAudio(){
     let url = baseURL + file;
 
     let player = document.getElementById("player");
-
     player.src = url;
     player.currentTime = 0;
 
     player.play().catch(err=>{
-        alert("❌ 無法播放音檔（請點擊畫面後再試）");
-        console.log(err);
+        alert("❌ 請先點擊畫面再播放");
     });
 }
 
@@ -141,21 +121,14 @@ function checkAnswer(choice){
     let correct = questions[current].answer;
 
     if(choice === correct){
-        score += 10;
-        document.getElementById("feedback").innerText = "💥 正確！攻擊成功！";
+        score += 25;
+        document.getElementById("feedback").innerText = "✅ 正確！";
     } else {
-        hp -= 1;
-        document.getElementById("feedback").innerText = "⚡ 錯誤！被怪物攻擊！";
+        document.getElementById("feedback").innerText = "❌ 錯誤！";
     }
 
     document.getElementById("score").innerText = score;
-    document.getElementById("hp").innerText = hp;
-
     document.getElementById("nextBtn").style.display = "inline-block";
-
-    if(hp <= 0){
-        endGame();
-    }
 }
 
 function nextQuestion(){
@@ -171,13 +144,15 @@ function endGame(){
     document.getElementById("choices").innerHTML = "";
     document.getElementById("nextBtn").style.display = "none";
 
-    let result = score >= 90 ? "🎯 Tone Master" :
-                 score >= 70 ? "👍 Tone Explorer" :
-                 score >= 50 ? "🙂 Getting There" :
-                               "🧩 Keep Practicing";
+    let result = "";
+
+    if(score === 100) result = "🎯 完美！四聲全對";
+    else if(score >= 75) result = "👍 很好！再加強一點";
+    else if(score >= 50) result = "🙂 還可以，再練習";
+    else result = "🧩 建議重練一次";
 
     document.getElementById("result").innerText =
-        `遊戲結束！分數：${score}\n${result}`;
+        `你的分數：${score} / 100\n${result}`;
 }
 
 loadQuestion();
