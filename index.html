@@ -3,7 +3,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>Tone Quest FIXED</title>
+<title>🎮 Tone Quest</title>
 
 <style>
 body {
@@ -13,10 +13,20 @@ body {
     text-align: center;
 }
 
+h1 {
+    margin-top: 20px;
+}
+
 .status {
     display: flex;
     justify-content: space-around;
     font-size: 20px;
+    margin: 10px;
+}
+
+#monster {
+    font-size: 80px;
+    margin: 20px;
 }
 
 button {
@@ -24,12 +34,27 @@ button {
     padding: 15px;
     margin: 10px;
     border-radius: 10px;
+    border: none;
     cursor: pointer;
+}
+
+button:hover {
+    background: gold;
+    color: black;
 }
 
 #feedback {
     font-size: 24px;
-    margin: 10px;
+    margin: 15px;
+}
+
+#nextBtn {
+    display: none;
+}
+
+#result {
+    font-size: 28px;
+    margin-top: 20px;
 }
 </style>
 </head>
@@ -39,11 +64,11 @@ button {
 <h1>🎮 Tone Quest</h1>
 
 <div class="status">
-❤️ HP: <span id="hp">3</span>
-🎯 Score: <span id="score">0</span>
+    ❤️ HP: <span id="hp">3</span>
+    🎯 Score: <span id="score">0</span>
 </div>
 
-<div style="font-size:70px;">👾</div>
+<div id="monster">👾</div>
 
 <button onclick="playAudio()">🔊 播放聲音</button>
 
@@ -51,27 +76,25 @@ button {
 
 <div id="feedback"></div>
 
-<button id="nextBtn" onclick="nextQuestion()" style="display:none;">下一題</button>
+<button id="nextBtn" onclick="nextQuestion()">下一題 ➡️</button>
 
 <div id="result"></div>
 
 <script>
-/* ✅ 使用真正可用的音源（Google Translate TTS） */
-function getAudioURL(text){
-    return `https://translate.google.com/translate_tts?ie=UTF-8&q=${text}&tl=zh-TW&client=tw-ob`;
-}
+/* 🔊 你的 GitHub Pages 音檔位置 */
+const baseURL = "https://damuli.github.io/Mandarin_tone_assessment/";
 
 const questions = [
-    {sound:"媽", answer:"媽 mā"},
-    {sound:"麻", answer:"麻 má"},
-    {sound:"馬", answer:"馬 mǎ"},
-    {sound:"罵", answer:"罵 mà"},
-    {sound:"媽", answer:"媽 mā"},
-    {sound:"麻", answer:"麻 má"},
-    {sound:"馬", answer:"馬 mǎ"},
-    {sound:"罵", answer:"罵 mà"},
-    {sound:"馬", answer:"馬 mǎ"},
-    {sound:"麻", answer:"麻 má"}
+    {audio:"ma1.m4a", answer:"媽 mā"},
+    {audio:"ma2.m4a", answer:"麻 má"},
+    {audio:"ma3.m4a", answer:"馬 mǎ"},
+    {audio:"ma4.m4a", answer:"罵 mà"},
+    {audio:"ma1.m4a", answer:"媽 mā"},
+    {audio:"ma2.m4a", answer:"麻 má"},
+    {audio:"ma3.m4a", answer:"馬 mǎ"},
+    {audio:"ma4.m4a", answer:"罵 mà"},
+    {audio:"ma3.m4a", answer:"馬 mǎ"},
+    {audio:"ma2.m4a", answer:"麻 má"}
 ];
 
 const options = ["媽 mā","麻 má","馬 mǎ","罵 mà"];
@@ -96,11 +119,14 @@ function loadQuestion(){
 }
 
 function playAudio(){
-    let text = questions[current].sound;
-    let audio = new Audio(getAudioURL(text));
+    let file = questions[current].audio;
+    let url = baseURL + file;
 
+    console.log("播放：", url);
+
+    let audio = new Audio(url);
     audio.play().catch(err=>{
-        alert("⚠️ 無法播放音檔（可能被瀏覽器阻擋）");
+        alert("❌ 播放失敗，請確認音檔網址是否正確");
         console.log(err);
     });
 }
@@ -110,10 +136,10 @@ function checkAnswer(choice){
 
     if(choice === correct){
         score += 10;
-        document.getElementById("feedback").innerText = "💥 正確！";
+        document.getElementById("feedback").innerText = "💥 正確！攻擊成功！";
     } else {
         hp -= 1;
-        document.getElementById("feedback").innerText = "⚡ 錯誤！";
+        document.getElementById("feedback").innerText = "⚡ 錯誤！被攻擊！";
     }
 
     document.getElementById("score").innerText = score;
@@ -121,7 +147,9 @@ function checkAnswer(choice){
 
     document.getElementById("nextBtn").style.display = "inline-block";
 
-    if(hp <= 0) endGame();
+    if(hp <= 0){
+        endGame();
+    }
 }
 
 function nextQuestion(){
@@ -143,7 +171,7 @@ function endGame(){
                                "🧩 Keep Practicing";
 
     document.getElementById("result").innerText =
-        `分數：${score}\n${result}`;
+        `遊戲結束！分數：${score}\n${result}`;
 }
 
 loadQuestion();
